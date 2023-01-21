@@ -3,7 +3,7 @@ package parsers
 import "fmt"
 
 func ParserStrToExpr(str string) (expr []string, err error) {
-	errMsg := "Incorrect expression : %s"
+	errMsg := "Incorrect expression : %s."
 	arg := ""
 
 	for _, symb := range str[1:] {

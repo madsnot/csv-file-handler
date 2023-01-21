@@ -3,7 +3,7 @@ package validator
 func ValidateValue(str string) (string, bool) {
 	strRune := []rune(str)
 
-	if strRune[0] == '=' {
+	if len(str) != 0 && strRune[0] == '=' {
 		return "string", true
 	}
 

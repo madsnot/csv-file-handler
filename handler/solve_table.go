@@ -14,8 +14,8 @@ func SolveTable(table map[string]string, eq []string) error {
 		err             error
 	)
 	errMsg := []string{"Invalid expression. ",
-		"This cell is not in the table: %s",
-		"Division by zero in: %s"}
+		"Unknown %s cell value.",
+		"Division by zero in: %s."}
 
 	for _, cell := range eq {
 		expr, err = parsers.ParserStrToExpr(table[cell])

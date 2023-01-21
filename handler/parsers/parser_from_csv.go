@@ -9,8 +9,8 @@ import (
 )
 
 func ParserFromCSV(fileName string) (table map[string]string, equations []string, err error) {
-	errMsg := []string{"Invalid column/row name: %s/%s",
-		"Incorrect expression in cell: %s"}
+	errMsg := []string{"Invalid column/row name: %s/%s.",
+		"Incorrect expression in cell: %s."}
 
 	file, err := os.Open(fileName)
 	if err != nil {
