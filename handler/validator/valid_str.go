@@ -8,5 +8,6 @@ func ValidateStr(str string) bool {
 			return false
 		}
 	}
+
 	return true
 }

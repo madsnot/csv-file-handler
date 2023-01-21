@@ -10,6 +10,7 @@ import (
 func takeColumnAndRow(key string) (string, string) {
 	column := ""
 	row := ""
+
 	for _, symb := range key {
 		if unicode.IsDigit(symb) {
 			row += string(symb)
@@ -17,14 +18,19 @@ func takeColumnAndRow(key string) (string, string) {
 			column += string(symb)
 		}
 	}
+
 	return row, column
 }
 
-func ParserToCSV(table map[string]string) {
-	var columns, rows []string
-	var records [][]string
+func ParserToCSV(table map[string]string) (err error) {
+	var (
+		columns, rows []string
+		records       [][]string
+	)
+
 	columnsMap := make(map[string]bool)
 	rowsMap := make(map[string]bool)
+
 	columns = append(columns, "")
 	for key := range table {
 		row, column := takeColumnAndRow(key)
@@ -37,8 +43,10 @@ func ParserToCSV(table map[string]string) {
 			rows = append(rows, row)
 		}
 	}
+
 	sort.Strings(columns)
 	sort.Strings(rows)
+
 	records = append(records, columns)
 	for _, row := range rows {
 		recRow := make([]string, len(columns))
@@ -50,7 +58,13 @@ func ParserToCSV(table map[string]string) {
 		}
 		records = append(records, recRow)
 	}
+
 	writer := csv.NewWriter(os.Stdout)
 	writer.Comma = ','
-	writer.WriteAll(records)
+	err = writer.WriteAll(records)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

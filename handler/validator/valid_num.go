@@ -8,5 +8,6 @@ func ValidateNum(str string) bool {
 			return false
 		}
 	}
+
 	return true
 }
