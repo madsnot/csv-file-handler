@@ -10,6 +10,7 @@ import (
 func SolveTable(table map[string]string, eq []string) error {
 	var (
 		res, arg1, arg2 int
+		op              string
 		expr            []string
 		err             error
 	)
@@ -32,16 +33,18 @@ func SolveTable(table map[string]string, eq []string) error {
 			return fmt.Errorf(errMsg[0]+errMsg[1], expr[0])
 		}
 
-		if !validator.ValidateNum(expr[2]) {
-			arg2, err = strconv.Atoi(table[expr[2]])
-		} else {
-			arg2, err = strconv.Atoi(expr[2])
-		}
-		if err != nil {
-			return fmt.Errorf(errMsg[0]+errMsg[1], expr[2])
+		if len(expr) == 3 {
+			if !validator.ValidateNum(expr[2]) {
+				arg2, err = strconv.Atoi(table[expr[2]])
+			} else {
+				arg2, err = strconv.Atoi(expr[2])
+			}
+			if err != nil {
+				return fmt.Errorf(errMsg[0]+errMsg[1], expr[2])
+			}
+			op = expr[1]
 		}
 
-		op := expr[1]
 		switch op {
 		case "+":
 			res = arg1 + arg2

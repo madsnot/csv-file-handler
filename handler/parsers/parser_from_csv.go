@@ -31,13 +31,19 @@ func ParserFromCSV(fileName string) (table map[string]string, equations []string
 		return nil, nil, fmt.Errorf(errMsg[0])
 	}
 
+	lenRow := len(columnName)
 	table = make(map[string]string, 0)
 	prevRowName := ""
+
 	for _, record := range records[1:] {
 		row := strings.Split(record[0], "\t")
-		rowName := row[0]
 
-		if !validator.ValidateSequence([]string{prevRowName, rowName}) {
+		if len(row) != lenRow {
+			return nil, nil, fmt.Errorf(errMsg[0])
+		}
+
+		rowName := row[0]
+		if prevRowName == rowName {
 			return nil, nil, fmt.Errorf(errMsg[0])
 		} else {
 			prevRowName = rowName
