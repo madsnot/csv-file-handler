@@ -18,10 +18,12 @@ func main() {
 		return
 	}
 
-	err = handler.SolveTable(dataTable, equations)
-	if err != nil {
-		log.Println(err)
-		return
+	if len(equations) != 0 {
+		err = handler.SolveTable(dataTable, equations)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
 
 	err = parsers.ParserToCSV(dataTable)
