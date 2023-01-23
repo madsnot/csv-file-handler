@@ -3,7 +3,11 @@ package validator
 import "unicode"
 
 func ValidateStr(str string) bool {
-	for _, symb := range str {
+	strRune := []rune(str)
+	if unicode.IsLower(strRune[0]) {
+		return false
+	}
+	for _, symb := range strRune {
 		if unicode.IsDigit(symb) {
 			return false
 		}
