@@ -1,9 +1,9 @@
 package handler
 
 import (
+	"csvhandler/handler/parsers"
+	"csvhandler/handler/validator"
 	"fmt"
-	"mods/handler/parsers"
-	"mods/handler/validator"
 	"strconv"
 )
 

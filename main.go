@@ -1,9 +1,9 @@
 package main
 
 import (
+	"csvhandler/handler"
+	"csvhandler/handler/parsers"
 	"log"
-	"mods/handler"
-	"mods/handler/parsers"
 	"os"
 )
 

@@ -1,9 +1,9 @@
 package parsers
 
 import (
+	"csvhandler/handler/validator"
 	"encoding/csv"
 	"fmt"
-	"mods/handler/validator"
 	"os"
 	"strings"
 )
