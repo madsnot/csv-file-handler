@@ -20,19 +20,15 @@ func ParserFromCSV(fileName string) (table map[string]string, equations []string
 
 	reader := csv.NewReader(file)
 	reader.Comma = ','
-	record, err := reader.Read()
-	if err != nil {
-		return nil, nil, err
-	}
-	columns := strings.Split(record[0], "\t")
-
 	records, err := reader.ReadAll()
 	if err != nil {
 		return nil, nil, err
 	}
 
+	columns := strings.Split(records[0][0], "\t")
+
 	table = make(map[string]string, 0)
-	for _, record := range records {
+	for _, record := range records[1:] {
 		rows := strings.Split(record[0], "\t")
 
 		for ind, val := range rows[1:] {

@@ -1,9 +1,11 @@
 package validator
 
+import "unicode"
+
 func ValidateValue(str string) (string, bool) {
 	strRune := []rune(str)
 
-	if len(str) != 0 && strRune[0] == '=' {
+	if len(str) != 0 && (!unicode.IsGraphic(strRune[0]) || strRune[0] == '=') {
 		return "string", true
 	}
 

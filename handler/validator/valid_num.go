@@ -4,7 +4,7 @@ import "unicode"
 
 func ValidateNum(str string) bool {
 	for _, symb := range str {
-		if unicode.IsLetter(symb) || unicode.IsSymbol(symb) {
+		if !unicode.IsDigit(symb) {
 			return false
 		}
 	}
