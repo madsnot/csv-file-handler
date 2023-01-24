@@ -16,7 +16,7 @@ func ParserFromCSV(fileName string) (table *models.DataTable, err error) {
 		"Incorrect expression in cell: %s."}
 
 	//открываем файл
-	file, err := os.Open(fileName)
+	file, err := os.Open("./tests/" + fileName)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func ParserFromCSV(fileName string) (table *models.DataTable, err error) {
 			//проверяем значение в ячейке (может быть выражением или целым числом)
 			valType, ok := validator.ValidateValue(val)
 			if !ok {
-				return nil, fmt.Errorf(errMsg[2], columnName[ind+1]+rowName)
+				return nil, fmt.Errorf(errMsg[3], columnName[ind+1]+rowName)
 			}
 
 			//проверяем тип значения в ячейке на выражение,
