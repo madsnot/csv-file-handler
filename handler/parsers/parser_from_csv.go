@@ -6,7 +6,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
-	"strings"
 )
 
 func ParserFromCSV(fileName string) (table *models.DataTable, err error) {
@@ -32,7 +31,7 @@ func ParserFromCSV(fileName string) (table *models.DataTable, err error) {
 
 	//берем первую строку считанной из csv таблицы,
 	//первая строка - имена столбцов
-	columnName := strings.Split(records[0][0], "\t")
+	columnName := records[0]
 	if !validator.ValidateSequence(columnName) {
 		return nil, fmt.Errorf(errMsg[0])
 	}
@@ -54,8 +53,7 @@ func ParserFromCSV(fileName string) (table *models.DataTable, err error) {
 	rowNamesMap := make(map[string]bool, 0) //карта имен строк
 
 	//по одной строке обрабатываем остальные строки таблицы
-	for _, record := range records[1:] {
-		row := strings.Split(record[0], "\t")
+	for _, row := range records[1:] {
 
 		//проверяем на равность количество столбцов в строке с данными
 		//и с количеством столбцов
