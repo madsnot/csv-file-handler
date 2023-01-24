@@ -1,64 +1,30 @@
 package parsers
 
 import (
+	"csvhandler/handler/models"
 	"encoding/csv"
 	"os"
-	"sort"
-	"unicode"
 )
 
-func takeColumnAndRow(key string) (string, string) {
-	column := ""
-	row := ""
+func ParserToCSV(table *models.DataTable) (err error) {
+	var records [][]string
 
-	for _, symb := range key {
-		if unicode.IsDigit(symb) {
-			row += string(symb)
-		} else {
-			column += string(symb)
-		}
-	}
-
-	return row, column
-}
-
-func ParserToCSV(table map[string]string) (err error) {
-	var (
-		columns, rows []string
-		records       [][]string
-	)
-
-	columnsMap := make(map[string]bool)
-	rowsMap := make(map[string]bool)
-
-	columns = append(columns, "")
-	for key := range table {
-		row, column := takeColumnAndRow(key)
-		if _, ok := columnsMap[column]; !ok {
-			columnsMap[column] = true
-			columns = append(columns, column)
-		}
-		if _, ok := rowsMap[row]; !ok {
-			rowsMap[row] = true
-			rows = append(rows, row)
-		}
-	}
-
-	sort.Strings(columns)
-	sort.Strings(rows)
-
-	records = append(records, columns)
-	for _, row := range rows {
-		recRow := make([]string, len(columns))
+	//записываем таблицу в матрицу для дальнейшей записи в csv формат
+	records = append(records, table.Columns)
+	for _, row := range table.Rows {
+		recRow := make([]string, len(table.Columns))
 		recRow[0] = row
 		ind := 1
-		for _, column := range columns[1:] {
-			recRow[ind] = table[column+row]
+
+		for _, column := range table.Columns[1:] {
+			recRow[ind] = table.Table[column+row]
 			ind++
 		}
+
 		records = append(records, recRow)
 	}
 
+	//выводим в консоль получившуюся таблицу в формате csv
 	writer := csv.NewWriter(os.Stdout)
 	writer.Comma = ','
 	err = writer.WriteAll(records)

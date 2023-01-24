@@ -6,6 +6,8 @@ func ParserStrToExpr(str string) (expr []string, err error) {
 	errMsg := "Incorrect expression : %s."
 	arg := ""
 
+	//проходим выражение, чтобы выделить отдельно первый аргумент,
+	//операнд и второй аргумент
 	for _, symb := range str[1:] {
 		symbStr := string(symb)
 		if symbStr == "+" || symbStr == "-" || symbStr == "*" || symbStr == "/" {
@@ -16,12 +18,11 @@ func ParserStrToExpr(str string) (expr []string, err error) {
 		}
 	}
 
+	//проверяем переменную хранящую аргумент выражения,
+	//если она не пуста, то аргумент надо сохранить в массив (выражение)
 	if arg != "" {
 		expr = append(expr, arg)
-	}
-
-	endInd := len(expr)
-	if expr[endInd-1] == "+" || expr[endInd-1] == "-" || expr[endInd-1] == "*" || expr[endInd-1] == "/" {
+	} else {
 		return nil, fmt.Errorf(errMsg, str)
 	}
 

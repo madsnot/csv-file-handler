@@ -1,6 +1,7 @@
 package parsers
 
 import (
+	"csvhandler/handler/models"
 	"csvhandler/handler/validator"
 	"encoding/csv"
 	"fmt"
@@ -8,64 +9,95 @@ import (
 	"strings"
 )
 
-func ParserFromCSV(fileName string) (table map[string]string, equations []string, err error) {
+func ParserFromCSV(fileName string) (table *models.DataTable, err error) {
 	errMsg := []string{"Invalid table structure.",
-		"Invalid column/row name: %s/%s.",
+		"Invalid column name: %s.",
+		"Invalid row name: %s.",
 		"Incorrect expression in cell: %s."}
 
+	//открываем файл
 	file, err := os.Open(fileName)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	defer file.Close()
 
+	//читаем из csv файла все строки
 	reader := csv.NewReader(file)
 	reader.Comma = ','
 	records, err := reader.ReadAll()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
+	//берем первую строку считанной из csv таблицы,
+	//первая строка - имена столбцов
 	columnName := strings.Split(records[0][0], "\t")
 	if !validator.ValidateSequence(columnName) {
-		return nil, nil, fmt.Errorf(errMsg[0])
+		return nil, fmt.Errorf(errMsg[0])
 	}
 
-	lenRow := len(columnName)
-	table = make(map[string]string, 0)
-	prevRowName := ""
+	//создаем новую таблицу
+	table = models.NewDataTable()
 
+	//добавляем в структуру массив имен столбцов, проверяя имена на правильность
+	table.Columns = append(table.Columns, columnName[0])
+	for _, str := range columnName[1:] {
+		if !validator.ValidateStr(str) {
+			return nil, fmt.Errorf(errMsg[1], str)
+		} else {
+			table.Columns = append(table.Columns, str)
+		}
+	}
+
+	lenRow := len(columnName)               //количество столбцов
+	rowNamesMap := make(map[string]bool, 0) //карта имен строк
+
+	//по одной строке обрабатываем остальные строки таблицы
 	for _, record := range records[1:] {
 		row := strings.Split(record[0], "\t")
 
+		//проверяем на равность количество столбцов в строке с данными
+		//и с количеством столбцов
 		if len(row) != lenRow {
-			return nil, nil, fmt.Errorf(errMsg[0])
+			return nil, fmt.Errorf(errMsg[0])
 		}
 
 		rowName := row[0]
-		if prevRowName == rowName {
-			return nil, nil, fmt.Errorf(errMsg[0])
-		} else {
-			prevRowName = rowName
+
+		//проверяем имя строки, что это число
+		if rowName == "" || !validator.ValidateNum(rowName) {
+			return nil, fmt.Errorf(errMsg[2], rowName)
 		}
 
-		for ind, val := range row[1:] {
-			if !validator.ValidateStr(columnName[ind+1]) || !validator.ValidateNum(rowName) {
-				return nil, nil, fmt.Errorf(errMsg[1], columnName[ind+1], rowName)
-			}
+		//проверяем на отличие имени данной строки от других строк,
+		//добавляем в массив имен строк таблицы
+		if _, ok := rowNamesMap[rowName]; ok {
+			return nil, fmt.Errorf(errMsg[0])
+		} else {
+			table.Rows = append(table.Rows, rowName)
+			rowNamesMap[rowName] = true
+		}
 
+		//проходимся по каждому значению в полученной строке
+		for ind, val := range row[1:] {
+			//проверяем значение в ячейке (может быть выражением или целым числом)
 			valType, ok := validator.ValidateValue(val)
 			if !ok {
-				return nil, nil, fmt.Errorf(errMsg[2], columnName[ind+1]+rowName)
+				return nil, fmt.Errorf(errMsg[2], columnName[ind+1]+rowName)
 			}
 
+			//проверяем тип значения в ячейке на выражение,
+			//если это выражение, добавляем имя ячейки в список
 			if valType == "string" {
-				equations = append(equations, columnName[ind+1]+rowName)
+				table.Equations = append(table.Equations, columnName[ind+1]+rowName)
 			}
-			table[columnName[ind+1]+rowName] = val
+
+			//добавляем значение в таблицу
+			table.Table[columnName[ind+1]+rowName] = val
 		}
 
 	}
 
-	return table, equations, nil
+	return table, nil
 }

@@ -1,13 +1,14 @@
 package handler
 
 import (
+	"csvhandler/handler/models"
 	"csvhandler/handler/parsers"
 	"csvhandler/handler/validator"
 	"fmt"
 	"strconv"
 )
 
-func SolveTable(table map[string]string, eq []string) error {
+func SolveTable(table *models.DataTable) error {
 	var (
 		res, arg1, arg2    int
 		op                 string
@@ -20,20 +21,29 @@ func SolveTable(table map[string]string, eq []string) error {
 		"Division by zero in: %s.",
 		"Invalid table structure."}
 
-	lenEq := len(eq)
+	//решаем выражения пока все не решим
+	lenEq := len(table.Equations)
 	for lenEq > 0 {
 
+		//флаг, показывающий возможно ли вообще решить хоть одно из выражений
+		//за один проход по списку
 		statusTableSolving = false
 
+		//проходим по массиву с именами ячеек, где есть выражения
 		for ind := 0; ind < lenEq; ind++ {
-			cell := eq[ind]
+			cell := table.Equations[ind]
 
-			expr, err = parsers.ParserStrToExpr(table[cell])
+			//парсим значение в виде строки в удобное для решения выражение
+			expr, err = parsers.ParserStrToExpr(table.Table[cell])
 			if err != nil {
 				return err
 			}
+
+			//проверяем первый аргумент выражения и преобразуем в число
 			if !validator.ValidateNum(expr[0]) {
-				str := []rune(table[expr[0]])
+				str := []rune(table.Table[expr[0]])
+
+				//проверяем ячейку, что она хранит (выражение/число)
 				if len(str) == 0 {
 					return fmt.Errorf(errMsg[0]+errMsg[1], expr[0])
 				}
@@ -48,9 +58,13 @@ func SolveTable(table map[string]string, eq []string) error {
 				return fmt.Errorf(errMsg[0]+errMsg[1], expr[0])
 			}
 
+			//продолжаем работать с выражением, обрабатывая операнд и второй аргумент,
+			//если это выражение вида arg1 op arg2
 			if len(expr) == 3 {
 				if !validator.ValidateNum(expr[2]) {
-					str := []rune(table[expr[2]])
+					str := []rune(table.Table[expr[2]])
+
+					//проверяем ячейку, что она хранит (выражение/число)
 					if len(str) == 0 {
 						return fmt.Errorf(errMsg[0]+errMsg[1], expr[2])
 					}
@@ -67,6 +81,7 @@ func SolveTable(table map[string]string, eq []string) error {
 				op = expr[1]
 			}
 
+			//вычисляем результат выражения на основе опернда
 			switch op {
 			case "+":
 				res = arg1 + arg2
@@ -84,18 +99,23 @@ func SolveTable(table map[string]string, eq []string) error {
 				res = arg1
 			}
 
-			table[cell] = strconv.Itoa(res)
+			//записываем результат в таблицу
+			table.Table[cell] = strconv.Itoa(res)
 
+			//так как выражение решилось, мы его удаляем из списка
 			if lenEq > 1 {
-				eq[ind] = eq[lenEq-1]
-				eq[lenEq-1] = ""
-				eq = eq[:lenEq-1]
+				table.Equations[ind] = table.Equations[lenEq-1]
+				table.Equations[lenEq-1] = ""
+				table.Equations = table.Equations[:lenEq-1]
 			}
+
 			statusTableSolving = true
 			arg1, arg2, op = 0, 0, ""
 			lenEq--
 		}
 
+		//проверяем, если за один проход по списку не одно выражение не решилось,
+		//то таблицу решить невозможно
 		if !statusTableSolving {
 			return fmt.Errorf(errMsg[3])
 		}
